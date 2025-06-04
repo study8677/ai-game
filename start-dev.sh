@@ -4,6 +4,10 @@
 
 echo "🚀 启动 AI Game Generator 开发环境..."
 
+# 项目根目录
+PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$PROJECT_ROOT"
+
 # 检查Python虚拟环境
 if [ ! -d "python3.10-env" ]; then
     echo "❌ Python虚拟环境不存在，请先运行安装脚本"
@@ -22,11 +26,11 @@ mkdir -p logs
 # 函数：启动后端
 start_backend() {
     echo "📚 启动后端服务 (端口 $BACKEND_PORT)..."
-    cd /root/workspace
+    cd "$PROJECT_ROOT"
     source python3.10-env/bin/activate
-    export PYTHONPATH=/root/workspace:$PYTHONPATH
+    export PYTHONPATH="$PROJECT_ROOT":$PYTHONPATH
     cd backend
-    nohup python -m uvicorn app:app --host 0.0.0.0 --port $BACKEND_PORT --reload > ../logs/backend.log 2>&1 &
+    nohup python -m uvicorn app:app --host 0.0.0.0 --port "$BACKEND_PORT" --reload > ../logs/backend.log 2>&1 &
     BACKEND_PID=$!
     echo "✅ 后端服务已启动 (PID: $BACKEND_PID)"
     echo "📄 后端日志: logs/backend.log"
@@ -36,7 +40,7 @@ start_backend() {
 # 函数：启动前端
 start_frontend() {
     echo "🎨 启动前端服务 (端口 $FRONTEND_PORT)..."
-    cd frontend
+    cd "$PROJECT_ROOT/frontend"
     if [ ! -d "node_modules" ]; then
         echo "📦 安装前端依赖..."
         npm install
